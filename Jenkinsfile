@@ -131,6 +131,11 @@ pipeline {
 
                         # Add Ansible directory to PATH
                         export PATH=${HOME}/.local/bin:$PATH
+                        echo "PATH after installing Ansible: $PATH"
+                        ansible-playbook --version
+                    else
+                        echo "Ansible is already installed"
+                        ansible-playbook --version
                     fi
                     '''
                 }
@@ -147,8 +152,8 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # Add Packer directory to PATH for this step
-                    export PATH=${PACKER_DIR}:$PATH
+                    # Add Packer and Ansible directories to PATH for this step
+                    export PATH=${PACKER_DIR}:${HOME}/.local/bin:$PATH
 
                     # Change directory to where the Packer template is located
                     cd packer-ansible
