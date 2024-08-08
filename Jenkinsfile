@@ -8,6 +8,7 @@ pipeline {
         TERRAFORM_CONFIG_DIR = 'terraform-ec2'
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
+        ANSIBLE_DIR = "${env.WORKSPACE}/ansible-bin"
     }
 
     stages {
@@ -91,18 +92,24 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # Determine the OS
+                    # Determine the OS and Architecture
                     OS=$(uname | tr '[:upper:]' '[:lower:]')
+                    ARCH=$(uname -m)
 
-                    # Install Ansible
+                    if [ "$ARCH" == "x86_64" ]; then
+                        ARCH="amd64"
+                    fi
+                    
+                    # Install Ansible if not already installed
                     if ! command -v ansible-playbook &> /dev/null
                     then
                         echo "Ansible could not be found. Installing..."
+                        
                         if [ "$OS" == "linux" ]; then
                             sudo apt-get update
+                            sudo apt-get install -y software-properties-common
+                            sudo apt-add-repository --yes --update ppa:ansible/ansible
                             sudo apt-get install -y ansible
-                        elif [ "$OS" == "darwin" ]; then
-                            brew install ansible
                         else
                             echo "Unsupported OS. Exiting..."
                             exit 1
