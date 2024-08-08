@@ -8,6 +8,7 @@ pipeline {
         TERRAFORM_CONFIG_DIR = 'terraform-ec2'
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
+        PYTHON_BIN_DIR = "${env.HOME}/Library/Python/3.9/bin"
     }
 
     stages {
@@ -130,7 +131,7 @@ pipeline {
                         fi
 
                         # Add Ansible directory to PATH
-                        export PATH=${HOME}/.local/bin:$PATH
+                        export PATH=${PYTHON_BIN_DIR}:${HOME}/.local/bin:$PATH
                         echo "PATH after installing Ansible: $PATH"
                         ansible-playbook --version
                     else
@@ -153,7 +154,7 @@ pipeline {
                 script {
                     sh '''
                     # Add Packer and Ansible directories to PATH for this step
-                    export PATH=${PACKER_DIR}:${HOME}/.local/bin:$PATH
+                    export PATH=${PACKER_DIR}:${PYTHON_BIN_DIR}:${HOME}/.local/bin:$PATH
 
                     # Change directory to where the Packer template is located
                     cd packer-ansible
