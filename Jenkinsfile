@@ -3,12 +3,12 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-west-1'
-        PACKER_TEMPLATE = 'packer-ansible/packer-template.pkr.hcl'  // updated for simplicity
+        PACKER_TEMPLATE = 'packer-ansible/packer-template.pkr.hcl'
         ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
-        TERRAFORM_DIR = 'terraform-ec2'
+        TERRAFORM_CONFIG_DIR = 'terraform-ec2'  // Directory containing Terraform configuration files
         AMI_ID = ''
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
-        TERRAFORM_DIR = "${env.WORKSPACE}/terraform-bin" //
+        TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"  // Directory for storing Terraform binaries
     }
 
     stages {
@@ -77,12 +77,12 @@ pipeline {
                             exit 1
                         fi
                         unzip $TERRAFORM_BINARY
-                        mkdir -p ${TERRAFORM_DIR}
-                        mv terraform ${TERRAFORM_DIR}/
+                        mkdir -p ${TERRAFORM_BIN_DIR}
+                        mv terraform ${TERRAFORM_BIN_DIR}/
                     fi
 
                     # Add Terraform directory to PATH
-                    export PATH=${TERRAFORM_DIR}:$PATH
+                    export PATH=${TERRAFORM_BIN_DIR}:$PATH
                     '''
                 }
             }
@@ -116,10 +116,13 @@ pipeline {
         stage('Deploy EC2 Instances with Terraform') {
             steps {
                 script {
-                    writeFile file: "${TERRAFORM_DIR}/ami.tfvars", text: "ami_id = \"${AMI_ID}\""
+                    writeFile file: "${TERRAFORM_CONFIG_DIR}/ami.tfvars", text: "ami_id = \"${AMI_ID}\""
 
-                    dir("${TERRAFORM_DIR}") {
+                    dir("${TERRAFORM_CONFIG_DIR}") {
                         sh '''
+                        # Add Terraform directory to PATH for this step
+                        export PATH=${TERRAFORM_BIN_DIR}:$PATH
+                        
                         terraform init
                         terraform apply -var-file=ami.tfvars -auto-approve
                         '''
