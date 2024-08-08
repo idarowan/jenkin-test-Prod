@@ -18,7 +18,13 @@ pipeline {
                     if ! command -v packer &> /dev/null
                     then
                         echo "Packer could not be found. Installing..."
-                        wget https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+                        if command -v curl &> /dev/null
+                        then
+                            curl -o packer_1.7.8_linux_amd64.zip https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+                        else
+                            echo "curl could not be found. Exiting..."
+                            exit 1
+                        fi
                         unzip packer_1.7.8_linux_amd64.zip
                         sudo mv packer /usr/local/bin/
                     fi
