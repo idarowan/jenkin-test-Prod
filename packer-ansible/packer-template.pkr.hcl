@@ -1,3 +1,16 @@
+packer {
+  required_plugins {
+    amazon = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/amazon"
+    }
+    ansible = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/ansible"
+    }
+  }
+}
+
 source "amazon-ebs" "ubuntu" {
   region          = "eu-west-1"
   source_ami      = "ami-0905a3c97561e0b69"
