@@ -62,8 +62,11 @@ pipeline {
                     # Add Packer directory to PATH for this step
                     export PATH=${PACKER_DIR}:$PATH
 
+                    # Change directory to where the Packer template is located
+                    cd packer-ansible
+
                     packer init .
-                    packer build ${PACKER_TEMPLATE} | tee packer_output.txt
+                    packer build ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
                     AMI_ID = sh(script: "grep -oP 'ami-\\w+' packer_output.txt | tail -1", returnStdout: true).trim()
                     echo "AMI ID: ${AMI_ID}"
