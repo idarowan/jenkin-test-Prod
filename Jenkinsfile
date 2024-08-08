@@ -160,15 +160,16 @@ pipeline {
                     # Ensure Ansible tmp dir exists
                     mkdir -p ${ANSIBLE_TMP_DIR}
 
+                    # Debug output to check environment variables
+                    echo "ANSIBLE_LOCAL_TEMP: ${ANSIBLE_LOCAL_TEMP}"
+                    echo "ANSIBLE_REMOTE_TEMP: ${ANSIBLE_REMOTE_TEMP}"
+                    echo "PATH: $PATH"
+
                     # Change directory to where the Packer template is located
                     cd packer-ansible
 
-                    # Set ANSIBLE_LOCAL_TEMP and ANSIBLE_REMOTE_TEMP to avoid issues with ~ interpretation
-                    export ANSIBLE_LOCAL_TEMP=${ANSIBLE_TMP_DIR}
-                    export ANSIBLE_REMOTE_TEMP=/tmp/ansible-tmp
-
-                    packer init .
-                    packer build ${PACKER_TEMPLATE} | tee ../packer_output.txt
+                    # Create the remote temporary directory before running Ansible
+                    packer build -var 'ansible_remote_tmp=/tmp/ansible-tmp' -on-error=abort ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
                     AMI_ID = sh(script: "grep -o 'ami-\\w\\+' ../packer_output.txt | tail -1", returnStdout: true).trim()
                     echo "AMI ID: ${AMI_ID}"
