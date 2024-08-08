@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_REGION = 'eu-west-1'
         PACKER_TEMPLATE = 'packer-template.pkr.hcl'
-        ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
+        ANSIBLE_PLAYBOOK = '/ansible/playbook.yml'
         TERRAFORM_CONFIG_DIR = 'terraform-ec2'
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
