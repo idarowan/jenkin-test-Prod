@@ -157,8 +157,7 @@ pipeline {
                     # Add Packer and Ansible directories to PATH for this step
                     export PATH=${PACKER_DIR}:${PYTHON_BIN_DIR}:${HOME}/.local/bin:$PATH
 
-                    # Ensure Ansible tmp dir exists
-                    mkdir -p ${ANSIBLE_TMP_DIR}
+                    # Ensure remote Ansible tmp dir exists
                     export ANSIBLE_REMOTE_TEMP=/tmp/ansible-tmp
 
                     # Debug output to check environment variables
