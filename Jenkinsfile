@@ -163,6 +163,9 @@ pipeline {
                     # Change directory to where the Packer template is located
                     cd packer-ansible
 
+                    # Set ANSIBLE_LOCAL_TEMP to avoid issues with ~ interpretation
+                    export ANSIBLE_LOCAL_TEMP=${ANSIBLE_TMP_DIR}
+
                     packer init .
                     packer build ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
