@@ -12,19 +12,22 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/idarowan/jerk_test.git' // Replace with your repo URL
+                // Ensure this URL and branch are correct
+                git branch: 'main', url: 'https://github.com/idarowan/jerk_test.git'
             }
         }
 
         stage('Build AMI with Packer') {
             steps {
                 script {
+                    // Ensure packer is installed and configured
                     sh """
                     packer init .
                     packer build ${PACKER_TEMPLATE} | tee packer_output.txt
                     """
                     // Extract AMI ID from Packer output
                     AMI_ID = sh(script: "grep -oP 'ami-\\w+' packer_output.txt | tail -1", returnStdout: true).trim()
+                    echo "AMI ID: ${AMI_ID}"
                 }
             }
         }
@@ -36,6 +39,7 @@ pipeline {
                     writeFile file: "${TERRAFORM_DIR}/ami.tfvars", text: "ami_id = \"${AMI_ID}\""
 
                     dir("${TERRAFORM_DIR}") {
+                        // Ensure terraform is installed and configured
                         sh """
                         terraform init
                         terraform apply -var-file=ami.tfvars -auto-approve
