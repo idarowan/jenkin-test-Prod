@@ -6,7 +6,6 @@ pipeline {
         PACKER_TEMPLATE = 'packer-template.pkr.hcl'
         ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
         TERRAFORM_CONFIG_DIR = 'terraform-ec2'
-        AMI_ID = ''
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
     }
