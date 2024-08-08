@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-west-1'
-        PACKER_TEMPLATE = 'packer-template.json'  // updated for simplicity
+        PACKER_TEMPLATE = 'packer-ansible/packer-template.pkr.hcl'  // updated for simplicity
         ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
         TERRAFORM_DIR = 'terraform-ec2'
         AMI_ID = ''
