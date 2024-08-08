@@ -9,6 +9,7 @@ pipeline {
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
         PYTHON_BIN_DIR = "${env.HOME}/Library/Python/3.9/bin"
+        ANSIBLE_TMP_DIR = "${env.WORKSPACE}/ansible-tmp"
     }
 
     stages {
@@ -155,6 +156,9 @@ pipeline {
                     sh '''
                     # Add Packer and Ansible directories to PATH for this step
                     export PATH=${PACKER_DIR}:${PYTHON_BIN_DIR}:${HOME}/.local/bin:$PATH
+
+                    # Ensure Ansible tmp dir exists
+                    mkdir -p ${ANSIBLE_TMP_DIR}
 
                     # Change directory to where the Packer template is located
                     cd packer-ansible
