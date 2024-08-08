@@ -7,6 +7,7 @@ pipeline {
         ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
         TERRAFORM_DIR = 'terraform-ec2'
         AMI_ID = ''
+        PACKER_DIR = "${env.WORKSPACE}/packer-bin"
     }
 
     stages {
@@ -26,8 +27,12 @@ pipeline {
                             exit 1
                         fi
                         unzip packer_1.7.8_linux_amd64.zip
-                        sudo mv packer /usr/local/bin/
+                        mkdir -p ${PACKER_DIR}
+                        mv packer ${PACKER_DIR}/
                     fi
+
+                    # Add Packer directory to PATH
+                    export PATH=${PACKER_DIR}:$PATH
                     '''
                 }
             }
@@ -42,10 +47,13 @@ pipeline {
         stage('Build AMI with Packer') {
             steps {
                 script {
-                    sh """
+                    sh '''
+                    # Add Packer directory to PATH for this step
+                    export PATH=${PACKER_DIR}:$PATH
+
                     packer init .
                     packer build ${PACKER_TEMPLATE} | tee packer_output.txt
-                    """
+                    '''
                     AMI_ID = sh(script: "grep -oP 'ami-\\w+' packer_output.txt | tail -1", returnStdout: true).trim()
                     echo "AMI ID: ${AMI_ID}"
                 }
@@ -58,10 +66,10 @@ pipeline {
                     writeFile file: "${TERRAFORM_DIR}/ami.tfvars", text: "ami_id = \"${AMI_ID}\""
 
                     dir("${TERRAFORM_DIR}") {
-                        sh """
+                        sh '''
                         terraform init
                         terraform apply -var-file=ami.tfvars -auto-approve
-                        """
+                        '''
                     }
                 }
             }
