@@ -8,6 +8,7 @@ pipeline {
         TERRAFORM_DIR = 'terraform-ec2'
         AMI_ID = ''
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
+        TERRAFORM_DIR = "${env.WORKSPACE}/terraform-bin" //
     }
 
     stages {
@@ -44,6 +45,44 @@ pipeline {
 
                     # Add Packer directory to PATH
                     export PATH=${PACKER_DIR}:$PATH
+                    '''
+                }
+            }
+        }
+
+        stage('Install Terraform') {
+            steps {
+                script {
+                    sh '''
+                    # Determine the OS and Architecture
+                    OS=$(uname | tr '[:upper:]' '[:lower:]')
+                    ARCH=$(uname -m)
+                    TERRAFORM_VERSION="1.1.7"
+                    
+                    if [ "$ARCH" == "x86_64" ]; then
+                        ARCH="amd64"
+                    fi
+                    
+                    TERRAFORM_BINARY="terraform_${TERRAFORM_VERSION}_${OS}_${ARCH}.zip"
+
+                    # Install Terraform if not already installed
+                    if ! command -v terraform &> /dev/null
+                    then
+                        echo "Terraform could not be found. Installing..."
+                        if command -v curl &> /dev/null
+                        then
+                            curl -o $TERRAFORM_BINARY https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${TERRAFORM_BINARY}
+                        else
+                            echo "curl could not be found. Exiting..."
+                            exit 1
+                        fi
+                        unzip $TERRAFORM_BINARY
+                        mkdir -p ${TERRAFORM_DIR}
+                        mv terraform ${TERRAFORM_DIR}/
+                    fi
+
+                    # Add Terraform directory to PATH
+                    export PATH=${TERRAFORM_DIR}:$PATH
                     '''
                 }
             }
