@@ -16,7 +16,7 @@ source "amazon-ebs" "ubuntu" {
   source_ami      = "ami-0905a3c97561e0b69"
   instance_type   = "t2.micro"
   ssh_username    = "ubuntu"
-  ami_name        = "custom-ubuntu-ami-${timestamp()}"
+  ami_name        = "custom-ubuntu-ami-for-daro"
   ami_description = "Ubuntu with MongoDB Shell and MySQL preinstalled"
   tags = {
     Name = "custom-ubuntu-ami-${timestamp()}"
