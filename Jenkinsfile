@@ -173,7 +173,7 @@ pipeline {
                     cd packer-ansible
 
                     # Run Packer build with the necessary environment variables
-                    packer build ${PACKER_TEMPLATE} | tee ../packer_output.txt
+                    packer build -var "ansible_local_tmp=${ANSIBLE_LOCAL_TEMP}" -var "ansible_remote_tmp=${ANSIBLE_REMOTE_TEMP}" ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
                     AMI_ID = sh(script: "grep -o 'ami-\\w\\+' ../packer_output.txt | tail -1", returnStdout: true).trim()
                     echo "AMI ID: ${AMI_ID}"
