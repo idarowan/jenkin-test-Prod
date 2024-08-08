@@ -112,12 +112,15 @@ pipeline {
                         elif [ "$OS" == "darwin" ]; then
                             echo "Installing Ansible on macOS..."
                             curl -O https://bootstrap.pypa.io/get-pip.py
-                            sudo python get-pip.py
-                            sudo pip install ansible
+                            python get-pip.py --user
+                            python -m pip install --user ansible
                         else
                             echo "Unsupported OS. Exiting..."
                             exit 1
                         fi
+
+                        # Add Ansible directory to PATH
+                        export PATH=${HOME}/.local/bin:$PATH
                     fi
                     '''
                 }
