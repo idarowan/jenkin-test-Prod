@@ -1,0 +1,33 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install MySQL
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Install mongosh
+      command:
+        cmd: "wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | tee /etc/apt/trusted.gpg.d/server-7.0.asc"
+      args:
+        creates: /etc/apt/trusted.gpg.d/server-7.0.asc
+
+    - name: Create the list file for MongoDB
+      command:
+        cmd: "echo 'deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse' | tee /etc/apt/sources.list.d/mongodb-org-7.0.list"
+      args:
+        creates: /etc/apt/sources.list.d/mongodb-org-7.0.list
+
+    - name: Reload local package database
+      apt:
+        update_cache: yes
+
+    - name: Install the mongosh package
+      apt:
+        name: mongodb-mongosh
+        state: present
