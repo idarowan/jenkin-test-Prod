@@ -8,7 +8,6 @@ pipeline {
         TERRAFORM_CONFIG_DIR = 'terraform-ec2'
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
-        ANSIBLE_DIR = "${env.WORKSPACE}/ansible-bin"
     }
 
     stages {
@@ -110,6 +109,11 @@ pipeline {
                             sudo apt-get install -y software-properties-common
                             sudo apt-add-repository --yes --update ppa:ansible/ansible
                             sudo apt-get install -y ansible
+                        elif [ "$OS" == "darwin" ]; then
+                            echo "Installing Ansible on macOS..."
+                            curl -O https://bootstrap.pypa.io/get-pip.py
+                            sudo python get-pip.py
+                            sudo pip install ansible
                         else
                             echo "Unsupported OS. Exiting..."
                             exit 1
