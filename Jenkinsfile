@@ -87,6 +87,32 @@ pipeline {
             }
         }
 
+        stage('Install Ansible') {
+            steps {
+                script {
+                    sh '''
+                    # Determine the OS
+                    OS=$(uname | tr '[:upper:]' '[:lower:]')
+
+                    # Install Ansible
+                    if ! command -v ansible-playbook &> /dev/null
+                    then
+                        echo "Ansible could not be found. Installing..."
+                        if [ "$OS" == "linux" ]; then
+                            sudo apt-get update
+                            sudo apt-get install -y ansible
+                        elif [ "$OS" == "darwin" ]; then
+                            brew install ansible
+                        else
+                            echo "Unsupported OS. Exiting..."
+                            exit 1
+                        fi
+                    fi
+                    '''
+                }
+            }
+        }
+
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/idarowan/jerk_test.git'
