@@ -9,8 +9,6 @@ pipeline {
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
         TERRAFORM_BIN_DIR = "${env.WORKSPACE}/terraform-bin"
         PYTHON_BIN_DIR = "${env.HOME}/Library/Python/3.9/bin"
-        ANSIBLE_TMP_DIR = "${env.WORKSPACE}/ansible-tmp"
-        ANSIBLE_LOCAL_TEMP = "${env.WORKSPACE}/ansible-tmp"
         ANSIBLE_REMOTE_TEMP = "/tmp/ansible-tmp"
     }
 
@@ -161,11 +159,9 @@ pipeline {
 
                     # Ensure Ansible tmp dir exists
                     mkdir -p ${ANSIBLE_TMP_DIR}
-                    export ANSIBLE_LOCAL_TEMP=${ANSIBLE_TMP_DIR}
                     export ANSIBLE_REMOTE_TEMP=/tmp/ansible-tmp
 
                     # Debug output to check environment variables
-                    echo "ANSIBLE_LOCAL_TEMP: ${ANSIBLE_LOCAL_TEMP}"
                     echo "ANSIBLE_REMOTE_TEMP: ${ANSIBLE_REMOTE_TEMP}"
                     echo "PATH: $PATH"
 
@@ -173,7 +169,7 @@ pipeline {
                     cd packer-ansible
 
                     # Run Packer build with the necessary environment variables
-                    packer build -var "ansible_local_tmp=${ANSIBLE_LOCAL_TEMP}" -var "ansible_remote_tmp=${ANSIBLE_REMOTE_TEMP}" ${PACKER_TEMPLATE} | tee ../packer_output.txt
+                    packer build -var "ansible_remote_tmp=${ANSIBLE_REMOTE_TEMP}" ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
                     AMI_ID = sh(script: "grep -o 'ami-\\w\\+' ../packer_output.txt | tail -1", returnStdout: true).trim()
                     echo "AMI ID: ${AMI_ID}"
