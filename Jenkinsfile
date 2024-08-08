@@ -170,8 +170,6 @@ pipeline {
                     # Change directory to where the Packer template is located
                     cd packer-ansible
 
-                    packer init .
-
                     # Run Packer build with the necessary environment variables
                     ANSIBLE_LOCAL_TEMP=${ANSIBLE_LOCAL_TEMP} ANSIBLE_REMOTE_TEMP=${ANSIBLE_REMOTE_TEMP} packer build ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
