@@ -29,7 +29,15 @@ build {
   provisioner "ansible" {
     playbook_file = "./ansible/playbook.yml"
     extra_arguments = [
-      "--extra-vars", "ansible_local_temp=${ANSIBLE_LOCAL_TEMP} ansible_remote_temp=${ANSIBLE_REMOTE_TEMP}"
+      "--extra-vars", "ansible_local_tmp=${var.ansible_local_tmp} ansible_remote_tmp=${var.ansible_remote_tmp}"
     ]
   }
+}
+
+variable "ansible_local_tmp" {
+  type = string
+}
+
+variable "ansible_remote_tmp" {
+  type = string
 }
