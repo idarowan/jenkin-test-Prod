@@ -111,9 +111,19 @@ pipeline {
                             sudo apt-get install -y ansible
                         elif [ "$OS" == "darwin" ]; then
                             echo "Installing Ansible on macOS..."
+                            if command -v python3 &> /dev/null
+                            then
+                                PYTHON=python3
+                            elif command -v python &> /dev/null
+                            then
+                                PYTHON=python
+                            else
+                                echo "Python is not installed. Exiting..."
+                                exit 1
+                            fi
                             curl -O https://bootstrap.pypa.io/get-pip.py
-                            python get-pip.py --user
-                            python -m pip install --user ansible
+                            $PYTHON get-pip.py --user
+                            $PYTHON -m pip install --user ansible
                         else
                             echo "Unsupported OS. Exiting..."
                             exit 1
