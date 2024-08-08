@@ -1,19 +1,8 @@
-variable "AWS_ACCESS_KEY" {
+/*variable "AWS_ACCESS_KEY" {
 }
 
 variable "AWS_SECRET_KEY" {
-}
-
-variable "mongodb_atlas_api_pub_key" {
-}
-
-variable "mongodb_atlas_api_pri_key" {
-}
-
-variable "mongodb_atlas_api_work_pub_key" {
-}
-variable "mongodb_atlas_api_work_pri_key" {
-}
+}*/
 
 variable "PATH_TO_PRIVATE_KEY" {
   default = "terrakey"
