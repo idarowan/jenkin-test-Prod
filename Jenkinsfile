@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-west-1'
-        PACKER_TEMPLATE = 'packer-ansible/packer-template.pkr.hcl'
+        PACKER_TEMPLATE = 'packer-template.pkr.hcl'
         ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
         TERRAFORM_CONFIG_DIR = 'terraform-ec2'
         AMI_ID = ''
@@ -107,7 +107,7 @@ pipeline {
                     packer init .
                     packer build ${PACKER_TEMPLATE} | tee ../packer_output.txt
                     '''
-                    AMI_ID = sh(script: "grep -oP 'ami-\\w+' ../packer_output.txt | tail -1", returnStdout: true).trim()
+                    AMI_ID = sh(script: "grep -o 'ami-\\w\\+' ../packer_output.txt | tail -1", returnStdout: true).trim()
                     echo "AMI ID: ${AMI_ID}"
                 }
             }
