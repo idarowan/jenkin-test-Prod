@@ -15,18 +15,29 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    # Determine the OS and Architecture
+                    OS=$(uname | tr '[:upper:]' '[:lower:]')
+                    ARCH=$(uname -m)
+                    PACKER_VERSION="1.7.8"
+                    
+                    if [ "$ARCH" == "x86_64" ]; then
+                        ARCH="amd64"
+                    fi
+                    
+                    PACKER_BINARY="packer_${PACKER_VERSION}_${OS}_${ARCH}.zip"
+
                     # Install Packer if not already installed
                     if ! command -v packer &> /dev/null
                     then
                         echo "Packer could not be found. Installing..."
                         if command -v curl &> /dev/null
                         then
-                            curl -o packer_1.7.8_linux_amd64.zip https://releases.hashicorp.com/packer/1.7.8/packer_1.7.8_linux_amd64.zip
+                            curl -o $PACKER_BINARY https://releases.hashicorp.com/packer/${PACKER_VERSION}/${PACKER_BINARY}
                         else
                             echo "curl could not be found. Exiting..."
                             exit 1
                         fi
-                        unzip packer_1.7.8_linux_amd64.zip
+                        unzip $PACKER_BINARY
                         mkdir -p ${PACKER_DIR}
                         mv packer ${PACKER_DIR}/
                     fi
