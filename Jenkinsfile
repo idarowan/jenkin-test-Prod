@@ -3,12 +3,11 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-west-1'
-        PACKER_TEMPLATE = 'packer-ansible/packer-template.pkr.hcl'
+        PACKER_TEMPLATE = 'packer-ansible/packer-template.pkr.hcl'  // updated for simplicity
         ANSIBLE_PLAYBOOK = 'packer-ansible/ansible/playbook.yml'
         TERRAFORM_DIR = 'terraform-ec2'
         AMI_ID = ''
         PACKER_DIR = "${env.WORKSPACE}/packer-bin"
-        TERRAFORM_DIR = "${env.WORKSPACE}/terraform-bin"
     }
 
     stages {
@@ -50,44 +49,6 @@ pipeline {
             }
         }
 
-        stage('Install Terraform') {
-            steps {
-                script {
-                    sh '''
-                    # Determine the OS and Architecture
-                    OS=$(uname | tr '[:upper:]' '[:lower:]')
-                    ARCH=$(uname -m)
-                    TERRAFORM_VERSION="1.1.7"
-                    
-                    if [ "$ARCH" == "x86_64" ]; then
-                        ARCH="amd64"
-                    fi
-                    
-                    TERRAFORM_BINARY="terraform_${TERRAFORM_VERSION}_${OS}_${ARCH}.zip"
-
-                    # Install Terraform if not already installed
-                    if ! command -v terraform &> /dev/null
-                    then
-                        echo "Terraform could not be found. Installing..."
-                        if command -v curl &> /dev/null
-                        then
-                            curl -o $TERRAFORM_BINARY https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${TERRAFORM_BINARY}
-                        else
-                            echo "curl could not be found. Exiting..."
-                            exit 1
-                        fi
-                        unzip $TERRAFORM_BINARY
-                        mkdir -p ${TERRAFORM_DIR}
-                        mv terraform ${TERRAFORM_DIR}/
-                    fi
-
-                    # Add Terraform directory to PATH
-                    export PATH=${TERRAFORM_DIR}:$PATH
-                    '''
-                }
-            }
-        }
-
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/idarowan/jerk_test.git'
@@ -120,9 +81,6 @@ pipeline {
 
                     dir("${TERRAFORM_DIR}") {
                         sh '''
-                        # Add Terraform directory to PATH for this step
-                        export PATH=${TERRAFORM_DIR}:$PATH
-                        
                         terraform init
                         terraform apply -var-file=ami.tfvars -auto-approve
                         '''
