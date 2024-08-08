@@ -57,12 +57,12 @@ pipeline {
                     # Determine the OS and Architecture
                     OS=$(uname | tr '[:upper:]' '[:lower:]')
                     ARCH=$(uname -m)
-                    TERRAFORM_VERSION="1.0.11"
-
+                    TERRAFORM_VERSION="1.1.7"
+                    
                     if [ "$ARCH" == "x86_64" ]; then
                         ARCH="amd64"
                     fi
-
+                    
                     TERRAFORM_BINARY="terraform_${TERRAFORM_VERSION}_${OS}_${ARCH}.zip"
 
                     # Install Terraform if not already installed
