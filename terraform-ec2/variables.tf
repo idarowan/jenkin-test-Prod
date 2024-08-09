@@ -1,23 +1,7 @@
-/*variable "AWS_ACCESS_KEY" {
-}
-
-variable "AWS_SECRET_KEY" {
-}*/
-
-variable "PATH_TO_PRIVATE_KEY" {
-  default = "terrakey"
-}
-
-variable "PATH_TO_PUBLIC_KEY" {
-  default = "terrakey.pub"
-}
-
-variable "project_id" {
-  default = "658d4575d481b84d71cc2cb5"
-}
-
-variable "INSTANCE_USERNAME" {
-  default = "ubuntu"
+variable "key_name" {
+  description = "Name of the SSH key pair"
+  type        = string
+  default     = "terrakey"
 }
 
 variable "ami_id" {
@@ -27,4 +11,12 @@ variable "ami_id" {
 
 variable "aws_region" {
   default = "eu-west-1"
+}
+
+output "instance_ids" {
+  value = aws_instance.example.*.id
+}
+
+output "public_ips" {
+  value = aws_instance.example.*.public_ip
 }

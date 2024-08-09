@@ -6,12 +6,19 @@
         update_cache: yes
         upgrade: dist
 
+    - name: Install prerequisites for MongoDB
+      apt:
+        name: 
+          - gnupg
+          - wget
+        state: present
+
     - name: Install MySQL
       apt:
         name: mysql-server
         state: present
 
-    - name: Install mongosh
+    - name: Import the MongoDB public GPG key
       command:
         cmd: "wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | tee /etc/apt/trusted.gpg.d/server-7.0.asc"
       args:
