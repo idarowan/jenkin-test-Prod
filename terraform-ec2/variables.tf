@@ -12,11 +12,3 @@ variable "ami_id" {
 variable "aws_region" {
   default = "eu-west-1"
 }
-
-output "instance_ids" {
-  value = aws_instance.example.*.id
-}
-
-output "public_ips" {
-  value = aws_instance.example.*.public_ip
-}

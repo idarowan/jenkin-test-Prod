@@ -27,7 +27,7 @@ build {
   sources = ["source.amazon-ebs.ubuntu"]
 
   provisioner "ansible" {
-    playbook_file = "ansible/playbook.yml"  # Relative path to the playbook
+    playbook_file = "./ansible/playbook.yml"  # Relative path to the playbook
     extra_arguments = [
       "--extra-vars", "ansible_remote_tmp=${var.ansible_remote_tmp}"
     ]

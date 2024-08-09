@@ -15,41 +15,29 @@ pipeline {
         stage('Print Working Directory') {
             steps {
                 sh 'pwd'
+                sh 'ls -R' // List all files and directories in the workspace
             }
         }
 
         stage('Install Packer, Ansible, and Terraform') {
             steps {
                 script {
-                    // Use the absolute path to Homebrew for Packer and Ansible
+                    // Install tools if needed
                     sh '''
                     if ! command -v /opt/homebrew/bin/packer &> /dev/null
                     then
-                        echo "Packer not found, installing..."
                         /opt/homebrew/bin/brew tap hashicorp/tap
                         /opt/homebrew/bin/brew install hashicorp/tap/packer
-                    else
-                        echo "Packer is already installed"
                     fi
-                    '''
 
-                    sh '''
                     if ! command -v /opt/homebrew/bin/ansible &> /dev/null
                     then
-                        echo "Ansible not found, installing..."
                         /opt/homebrew/bin/brew install ansible
-                    else
-                        echo "Ansible is already installed"
                     fi
-                    '''
-                    
-                    sh '''
+
                     if ! command -v /opt/homebrew/bin/terraform &> /dev/null
                     then
-                        echo "Terraform not found, installing..."
                         /opt/homebrew/bin/brew install terraform
-                    else
-                        echo "Terraform is already installed"
                     fi
                     '''
                 }
