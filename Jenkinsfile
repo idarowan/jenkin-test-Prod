@@ -49,11 +49,7 @@ pipeline {
         stage('Build AMI with Packer') {
             steps {
                 sh '/opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl'
-                sh '/opt/homebrew/bin/packer build ./packer-ansible/packer-template.pkr.hcl > output.txt'
-                script {
-                    def amiId = sh(script: "grep 'ami-' output.txt | tail -n 1 | awk '{print \$2}'", returnStdout: true).trim()
-                    env.AMI_ID = amiId
-                }
+                sh '/opt/homebrew/bin/packer build ./packer-ansible/packer-template.pkr.hcl > build_output.txt 2>&1 || cat build_output.txt'
             }
         }
 
