@@ -23,14 +23,13 @@ pipeline {
         stage('Install Packer, Ansible, and Terraform') {
             steps {
                 script {
-                    // Use the full path to the Ansible binary
                     sh '''
-                    if ! command -v /opt/homebrew/bin/ansible &> /dev/null
+                    if ! command -v /opt/homebrew/bin/ansible-playbook &> /dev/null
                     then
-                        echo "Ansible not found, installing..."
+                        echo "Ansible-playbook not found, installing..."
                         /opt/homebrew/bin/brew install ansible
                     else
-                        echo "Ansible is already installed"
+                        echo "Ansible-playbook is already installed"
                     fi
                     '''
                 }
@@ -39,20 +38,19 @@ pipeline {
 
         stage('Build AMI with Packer') {
             steps {
-                sh '/opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl'
-                sh '/opt/homebrew/bin/packer build ./packer-ansible/packer-template.pkr.hcl > build_output.txt 2>&1 || cat build_output.txt'
-                script {
-                    def amiId = sh(script: "grep 'ami-' build_output.txt | tail -n 1 | awk '{print \$2}'", returnStdout: true).trim()
-                    if (amiId) {
-                        env.AMI_ID = amiId
-                    } else {
-                        error("Failed to retrieve AMI ID from Packer output")
-                    }
+                timeout(time: 15, unit: 'MINUTES') {
+                    sh '/opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl'
+                    sh '/opt/homebrew/bin/packer build -debug ./packer-ansible/packer-template.pkr.hcl > build_output.txt 2>&1 || cat build_output.txt'
                 }
             }
         }
 
         stage('Deploy Infrastructure with Terraform') {
+            when {
+                expression {
+                    return env.AMI_ID != null && env.AMI_ID != 'null'
+                }
+            }
             steps {
                 dir('terraform-ec2') {
                     sh '/opt/homebrew/bin/terraform init'
