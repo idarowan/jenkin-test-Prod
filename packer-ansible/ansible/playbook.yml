@@ -13,10 +13,21 @@
           - wget
         state: present
 
-    - name: Install MySQL
+    - name: Add universe repository (required for some packages)
+      apt_repository:
+        repo: 'ppa:ondrej/mysql-8.0'
+        state: present
+
+    - name: Update apt cache after adding new repositories
+      apt:
+        update_cache: yes
+
+    - name: Install MySQL and fix missing dependencies
       apt:
         name: mysql-server
         state: present
+        force_apt_get: yes
+        allow_unauthenticated: yes
 
     - name: Download the MongoDB public GPG key
       get_url:
