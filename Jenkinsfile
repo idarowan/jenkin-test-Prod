@@ -18,10 +18,10 @@ pipeline {
             }
         }
 
-        stage('Install Packer and Ansible') {
+        stage('Install Packer, Ansible, and Terraform') {
             steps {
                 script {
-                    // Use the absolute path to Homebrew
+                    // Use the absolute path to Homebrew for Packer and Ansible
                     sh '''
                     if ! command -v /opt/homebrew/bin/packer &> /dev/null
                     then
@@ -42,6 +42,16 @@ pipeline {
                         echo "Ansible is already installed"
                     fi
                     '''
+                    
+                    sh '''
+                    if ! command -v /opt/homebrew/bin/terraform &> /dev/null
+                    then
+                        echo "Terraform not found, installing..."
+                        /opt/homebrew/bin/brew install terraform
+                    else
+                        echo "Terraform is already installed"
+                    fi
+                    '''
                 }
             }
         }
@@ -56,8 +66,8 @@ pipeline {
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 dir('terraform-ec2') {
-                    sh 'terraform init'
-                    sh "terraform apply -var ami_id=${env.AMI_ID} -auto-approve"
+                    sh '/opt/homebrew/bin/terraform init'
+                    sh "/opt/homebrew/bin/terraform apply -var ami_id=${env.AMI_ID} -auto-approve"
                 }
             }
         }
