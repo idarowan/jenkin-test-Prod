@@ -61,6 +61,7 @@ stage('Extract AMI ID') {
 }
 
 
+
         stage('Deploy Infrastructure with Terraform') {
     when {
         expression {
