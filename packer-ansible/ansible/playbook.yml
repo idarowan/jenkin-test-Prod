@@ -13,13 +13,6 @@
           - wget
         state: present
 
-    - name: Install MySQL
-      apt:
-        name: mysql-server
-        state: present
-        force_apt_get: yes
-        allow_unauthenticated: yes
-
     - name: Download the MongoDB public GPG key
       get_url:
         url: https://www.mongodb.org/static/pgp/server-7.0.asc
