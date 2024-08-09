@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/your-repo.git'
+                git branch: 'main', url: 'https://github.com/idarowan/jerk_test.git'
             }
         }
 
