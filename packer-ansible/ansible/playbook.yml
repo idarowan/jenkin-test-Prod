@@ -19,18 +19,16 @@
         state: present
 
     - name: Download the MongoDB public GPG key
-      command: curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc
-      register: mongodb_gpg_key
+      get_url:
+        url: https://www.mongodb.org/static/pgp/server-7.0.asc
+        dest: /etc/apt/trusted.gpg.d/server-7.0.asc
+        mode: '0644'
 
-    - name: Add MongoDB public GPG key to trusted keys
-      command: tee /etc/apt/trusted.gpg.d/server-7.0.asc
-      stdin: "{{ mongodb_gpg_key.stdout }}"
-      
     - name: Create the list file for MongoDB
-      command:
-        cmd: "echo 'deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse' | tee /etc/apt/sources.list.d/mongodb-org-7.0.list"
-      args:
-        creates: /etc/apt/sources.list.d/mongodb-org-7.0.list
+      copy:
+        content: 'deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse'
+        dest: /etc/apt/sources.list.d/mongodb-org-7.0.list
+        mode: '0644'
 
     - name: Reload local package database
       apt:
