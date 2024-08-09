@@ -13,16 +13,7 @@
           - wget
         state: present
 
-    - name: Add universe repository (required for some packages)
-      apt_repository:
-        repo: 'ppa:ondrej/mysql-8.0'
-        state: present
-
-    - name: Update apt cache after adding new repositories
-      apt:
-        update_cache: yes
-
-    - name: Install MySQL and fix missing dependencies
+    - name: Install MySQL
       apt:
         name: mysql-server
         state: present
