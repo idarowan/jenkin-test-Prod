@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'eu-west-1'
+        PATH = "/opt/homebrew/bin:$PATH"
     }
 
     stages {
