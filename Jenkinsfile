@@ -37,27 +37,44 @@ pipeline {
         }
 
         stage('Build AMI with Packer') {
-            steps {
-                timeout(time: 15, unit: 'MINUTES') {
-                    sh '/opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl'
-                    sh '/opt/homebrew/bin/packer build -debug ./packer-ansible/packer-template.pkr.hcl > build_output.txt 2>&1 || cat build_output.txt'
-                }
-            }
+    steps {
+        timeout(time: 15, unit: 'MINUTES') {
+            sh '''
+            /opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl
+            /opt/homebrew/bin/packer build ./packer-ansible/packer-template.pkr.hcl > build_output.txt 2>&1 || cat build_output.txt
+            '''
         }
+    }
+}
+
+stage('Extract AMI ID') {
+    steps {
+        script {
+            def amiId = sh(script: "grep 'ami-' build_output.txt | tail -n 1 | awk '{print \$2}'", returnStdout: true).trim()
+            if (!amiId.startsWith('ami-')) {
+                error "Failed to extract AMI ID from Packer output"
+            }
+            env.AMI_ID = amiId
+            echo "Extracted AMI ID: ${env.AMI_ID}"
+        }
+    }
+}
+
 
         stage('Deploy Infrastructure with Terraform') {
-            when {
-                expression {
-                    return env.AMI_ID != null && env.AMI_ID != 'null'
-                }
-            }
-            steps {
-                dir('terraform-ec2') {
-                    sh '/opt/homebrew/bin/terraform init'
-                    sh "/opt/homebrew/bin/terraform apply -var ami_id=${env.AMI_ID} -auto-approve"
-                }
-            }
+    when {
+        expression {
+            return env.AMI_ID != null && env.AMI_ID != 'null'
         }
+    }
+    steps {
+        dir('terraform-ec2') {
+            sh '/opt/homebrew/bin/terraform init'
+            sh "/opt/homebrew/bin/terraform apply -var ami_id=${env.AMI_ID} -auto-approve"
+        }
+    }
+}
+
     }
 
     triggers {
