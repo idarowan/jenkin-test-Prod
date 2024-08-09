@@ -23,7 +23,7 @@ pipeline {
                 script {
                     // Use the absolute path to Homebrew
                     sh '''
-                    if ! command -v packer &> /dev/null
+                    if ! command -v /opt/homebrew/bin/packer &> /dev/null
                     then
                         echo "Packer not found, installing..."
                         /opt/homebrew/bin/brew tap hashicorp/tap
@@ -34,7 +34,7 @@ pipeline {
                     '''
 
                     sh '''
-                    if ! command -v ansible &> /dev/null
+                    if ! command -v /opt/homebrew/bin/ansible &> /dev/null
                     then
                         echo "Ansible not found, installing..."
                         /opt/homebrew/bin/brew install ansible
@@ -48,8 +48,8 @@ pipeline {
 
         stage('Build AMI with Packer') {
             steps {
-                sh 'packer init ./packer-ansible/packer-template.pkr.hcl'
-                sh 'packer build ./packer-ansible/packer-template.pkr.hcl > output.txt'
+                sh '/opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl'
+                sh '/opt/homebrew/bin/packer build ./packer-ansible/packer-template.pkr.hcl > output.txt'
                 script {
                     def amiId = sh(script: "grep 'ami-' output.txt | tail -n 1 | awk '{print \$2}'", returnStdout: true).trim()
                     env.AMI_ID = amiId
