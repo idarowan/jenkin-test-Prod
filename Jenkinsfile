@@ -52,7 +52,7 @@ pipeline {
                 sh 'packer init ./packer-ansible/packer-template.pkr.hcl'
                 sh 'packer build ./packer-ansible/packer-template.pkr.hcl > output.txt'
                 script {
-                    def amiId = sh(script: "grep 'ami-' output.txt | tail -n 1 | awk '{print $2}'", returnStdout: true).trim()
+                    def amiId = sh(script: "grep 'ami-' output.txt | tail -n 1 | awk '{print \$2}'", returnStdout: true).trim()
                     env.AMI_ID = amiId
                 }
             }
