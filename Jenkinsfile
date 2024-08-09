@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/idarowan/jerk_test.git'
+                git branch: 'main', url: 'https://github.com/your-repo/your-repo.git'
             }
         }
 
@@ -22,22 +22,14 @@ pipeline {
         stage('Install Packer, Ansible, and Terraform') {
             steps {
                 script {
-                    // Install tools if needed
+                    // Use the full path to the Ansible binary
                     sh '''
-                    if ! command -v /opt/homebrew/bin/packer &> /dev/null
-                    then
-                        /opt/homebrew/bin/brew tap hashicorp/tap
-                        /opt/homebrew/bin/brew install hashicorp/tap/packer
-                    fi
-
                     if ! command -v /opt/homebrew/bin/ansible &> /dev/null
                     then
+                        echo "Ansible not found, installing..."
                         /opt/homebrew/bin/brew install ansible
-                    fi
-
-                    if ! command -v /opt/homebrew/bin/terraform &> /dev/null
-                    then
-                        /opt/homebrew/bin/brew install terraform
+                    else
+                        echo "Ansible is already installed"
                     fi
                     '''
                 }
@@ -48,6 +40,14 @@ pipeline {
             steps {
                 sh '/opt/homebrew/bin/packer init ./packer-ansible/packer-template.pkr.hcl'
                 sh '/opt/homebrew/bin/packer build ./packer-ansible/packer-template.pkr.hcl > build_output.txt 2>&1 || cat build_output.txt'
+                script {
+                    def amiId = sh(script: "grep 'ami-' build_output.txt | tail -n 1 | awk '{print \$2}'", returnStdout: true).trim()
+                    if (amiId) {
+                        env.AMI_ID = amiId
+                    } else {
+                        error("Failed to retrieve AMI ID from Packer output")
+                    }
+                }
             }
         }
 
