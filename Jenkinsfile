@@ -75,6 +75,13 @@ stage('Extract AMI ID') {
     }
 }
 
+stage('Debug Packer Output') {
+    steps {
+        sh 'cat build_output.txt'
+    }
+}
+
+
     }
 
     triggers {
