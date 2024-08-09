@@ -21,24 +21,23 @@ pipeline {
         stage('Install Packer and Ansible') {
             steps {
                 script {
-                    // Install Packer if not installed
+                    // Use the absolute path to Homebrew
                     sh '''
                     if ! command -v packer &> /dev/null
                     then
                         echo "Packer not found, installing..."
-                        brew tap hashicorp/tap
-                        brew install hashicorp/tap/packer
+                        /opt/homebrew/bin/brew tap hashicorp/tap
+                        /opt/homebrew/bin/brew install hashicorp/tap/packer
                     else
                         echo "Packer is already installed"
                     fi
                     '''
 
-                    // Install Ansible if not installed
                     sh '''
                     if ! command -v ansible &> /dev/null
                     then
                         echo "Ansible not found, installing..."
-                        brew install ansible
+                        /opt/homebrew/bin/brew install ansible
                     else
                         echo "Ansible is already installed"
                     fi
