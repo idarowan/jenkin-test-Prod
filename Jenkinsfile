@@ -89,10 +89,4 @@ stage('Debug Packer Output') {
         githubPush()
     }
 
-    post {
-        always {
-            echo 'Cleaning up workspace...'
-            cleanWs()
-        }
-    }
 }
