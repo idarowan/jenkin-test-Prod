@@ -12,3 +12,11 @@ variable "ami_id" {
 variable "aws_region" {
   default = "eu-west-1"
 }
+
+variable "PATH_TO_PRIVATE_KEY" {
+  default = "terrakey"
+}
+
+variable "PATH_TO_PUBLIC_KEY" {
+  default = "terrakey.pub"
+}
