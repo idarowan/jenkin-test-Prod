@@ -58,8 +58,7 @@
     - name: Show Terraform version
       debug:
         msg: "{{ terraform_version.stdout }}"
-    
-    ---
+
 - name: Setup MongoDB Replica Set
   hosts: all
   become: true
