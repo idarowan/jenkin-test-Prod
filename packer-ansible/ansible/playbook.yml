@@ -33,3 +33,9 @@
       apt:
         name: mongodb-mongosh
         state: present
+
+    - name: Install Terraform
+      apt:
+        name: terraform
+        state: present
+        become: yes
