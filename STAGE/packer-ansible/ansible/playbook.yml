@@ -1,0 +1,60 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install prerequisites for MongoDB
+      apt:
+        name: 
+          - gnupg
+          - wget
+        state: present
+    
+    - name: Install unzip utility (required to extract Terraform)
+      apt:
+        name: unzip
+        state: present
+
+    - name: Download the MongoDB public GPG key
+      get_url:
+        url: https://www.mongodb.org/static/pgp/server-7.0.asc
+        dest: /etc/apt/trusted.gpg.d/server-7.0.asc
+        mode: '0644'
+
+    - name: Create the list file for MongoDB
+      copy:
+        content: 'deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse'
+        dest: /etc/apt/sources.list.d/mongodb-org-7.0.list
+        mode: '0644'
+
+    - name: Reload local package database
+      apt:
+        update_cache: yes
+
+    - name: Install the mongosh package
+      apt:
+        name: mongodb-mongosh
+        state: present
+
+    - name: Download Terraform binary
+      get_url:
+        url: "https://releases.hashicorp.com/terraform/1.5.2/terraform_1.5.2_linux_amd64.zip"
+        dest: "/tmp/terraform.zip"
+      
+    - name: Unzip Terraform binary
+      unarchive:
+        src: "/tmp/terraform.zip"
+        dest: "/usr/local/bin/"
+        remote_src: yes
+        creates: "/usr/local/bin/terraform"
+      
+    - name: Verify Terraform installation
+      command: terraform version
+      register: terraform_version
+
+    - name: Show Terraform version
+      debug:
+        msg: "{{ terraform_version.stdout }}"
