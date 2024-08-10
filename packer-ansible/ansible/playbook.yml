@@ -12,6 +12,11 @@
           - gnupg
           - wget
         state: present
+    
+    - name: Install unzip utility (required to extract Terraform)
+      apt:
+        name: unzip
+        state: present
 
     - name: Download the MongoDB public GPG key
       get_url:
@@ -38,14 +43,14 @@
       get_url:
         url: "https://releases.hashicorp.com/terraform/1.5.2/terraform_1.5.2_linux_amd64.zip"
         dest: "/tmp/terraform.zip"
-    
+      
     - name: Unzip Terraform binary
       unarchive:
         src: "/tmp/terraform.zip"
         dest: "/usr/local/bin/"
         remote_src: yes
         creates: "/usr/local/bin/terraform"
-    
+      
     - name: Verify Terraform installation
       command: terraform version
       register: terraform_version
