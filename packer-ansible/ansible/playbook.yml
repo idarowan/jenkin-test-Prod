@@ -34,8 +34,22 @@
         name: mongodb-mongosh
         state: present
 
-    - name: Install Terraform
-      apt:
-        name: terraform
-        state: present
-        become: yes
+    - name: Download Terraform binary
+      get_url:
+        url: "https://releases.hashicorp.com/terraform/1.5.2/terraform_1.5.2_linux_amd64.zip"
+        dest: "/tmp/terraform.zip"
+    
+    - name: Unzip Terraform binary
+      unarchive:
+        src: "/tmp/terraform.zip"
+        dest: "/usr/local/bin/"
+        remote_src: yes
+        creates: "/usr/local/bin/terraform"
+    
+    - name: Verify Terraform installation
+      command: terraform version
+      register: terraform_version
+
+    - name: Show Terraform version
+      debug:
+        msg: "{{ terraform_version.stdout }}"
