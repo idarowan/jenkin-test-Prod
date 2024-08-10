@@ -176,19 +176,6 @@
             processManagement:
               fork: true
 
-    - name: Create kill_mongod.sh script
-      copy:
-        dest: /usr/local/bin/kill_mongod.sh
-        content: |
-          #!/bin/bash
-          pids=$(ps aux | grep '[m]ongod' | awk '{print $2}')
-          if [ -n "$pids" ]; then
-            echo "Stopping mongod processes..."
-            sudo kill $pids
-          fi
-          echo "mongod stopped."
-      mode: '0755'
-
     - name: Start MongoDB instance 1
       command: sudo mongod --config /etc/mongod1.conf
       async: 30
