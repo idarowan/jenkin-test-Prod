@@ -59,6 +59,7 @@
       debug:
         msg: "{{ terraform_version.stdout }}"
     
+    ---
 - name: Setup MongoDB Replica Set
   hosts: all
   become: true
@@ -77,10 +78,10 @@
         dest: /usr/share/keyrings/mongodb-server-6.0.gpg
         mode: '0644'
 
-    - name: Add MongoDB GPG key to keyring
-      command: gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg /usr/share/keyrings/mongodb-server-6.0.gpg
-      args:
-        creates: /usr/share/keyrings/mongodb-server-6.0.gpg
+    - name: Add MongoDB GPG key to apt
+      apt_key:
+        file: /usr/share/keyrings/mongodb-server-6.0.gpg
+        state: present
 
     - name: Add MongoDB repository
       apt_repository:
