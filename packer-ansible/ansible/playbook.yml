@@ -155,20 +155,6 @@
             fork: true
           EOF
 
-          cat <<EOF | sudo tee kill_mongod.sh
-          #!/bin/bash
-
-          # Find and kill all mongod processes
-          pids=$(ps aux | grep '[m]ongod' | awk '{print $2}')
-          if [ -n "$pids" ]; then
-            echo "Stopping mongod processes..."
-            sudo kill $pids
-          fi
-          echo "mongod stooped."
-          EOF
-
-          chmod +x kill_mongod.sh
-
           # Start MongoDB instances
           sudo mongod --config /etc/mongod1.conf
           sudo mongod --config /etc/mongod2.conf
