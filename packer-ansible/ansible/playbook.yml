@@ -59,156 +59,16 @@
       debug:
         msg: "{{ terraform_version.stdout }}"
 
-- name: Setup MongoDB Replica Set
-  hosts: all
+- name: Deploy MongoDB Replica Set
+  hosts: ec2
   become: true
   tasks:
-    - name: Install necessary packages
-      apt:
-        name:
-          - gnupg
-          - curl
-        state: present
-        update_cache: yes
 
-    - name: Download MongoDB GPG key
-      get_url:
-        url: https://www.mongodb.org/static/pgp/server-6.0.asc
-        dest: /usr/share/keyrings/mongodb-server-6.0.gpg
-        mode: '0644'
-
-    - name: Add MongoDB GPG key to apt
-      apt_key:
-        file: /usr/share/keyrings/mongodb-server-6.0.gpg
-        state: present
-
-    - name: Add MongoDB repository
-      apt_repository:
-        repo: "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse"
-        state: present
-        filename: mongodb-org-6.0
-
-    - name: Install MongoDB
-      apt:
-        name: mongodb-org
-        state: present
-        update_cache: yes
-
-    - name: Create directories for data and logs
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ ansible_user_id }}"
-        recurse: yes
-      loop:
-        - /var/lib/mongo1
-        - /var/lib/mongo2
-        - /var/lib/mongo3
-        - /var/log/mongodb
-
-    - name: Generate keyfile for internal authentication
-      shell: |
-        openssl rand -base64 756 > /var/lib/mongo1/keyfile
-        cp /var/lib/mongo1/keyfile /var/lib/mongo2/keyfile
-        cp /var/lib/mongo1/keyfile /var/lib/mongo3/keyfile
-        chmod 400 /var/lib/mongo1/keyfile
-        chmod 400 /var/lib/mongo2/keyfile
-        chmod 400 /var/lib/mongo3/keyfile
-        chown {{ ansible_user_id }} /var/lib/mongo1/keyfile
-        chown {{ ansible_user_id }} /var/lib/mongo2/keyfile
-        chown {{ ansible_user_id }} /var/lib/mongo3/keyfile
-      args:
-        creates: /var/lib/mongo1/keyfile
-
-    - name: Create configuration files for MongoDB instances
+    - name: Upload MongoDB setup script to the EC2 instance
       copy:
-        content: "{{ item.content }}"
-        dest: "{{ item.dest }}"
-      loop:
-        - dest: /etc/mongod1.conf
-          content: |
-            storage:
-              dbPath: /var/lib/mongo1
-            systemLog:
-              destination: file
-              path: /var/log/mongodb/mongod1.log
-              logAppend: true
-            net:
-              bindIp: localhost
-              port: 27017
-            replication:
-              replSetName: rs0
-            security:
-              authorization: enabled
-              keyFile: /var/lib/mongo1/keyfile
-            processManagement:
-              fork: true
+        src: /Users/idarowan.ikperikpe/Desktop/vpc/TerraForm/PROJECTS/Jerkins/jerk_test/packer-ansible/ansible/setup_mongodb.sh
+        dest: /tmp/setup_mongodb.sh
+        mode: '0755'
 
-        - dest: /etc/mongod2.conf
-          content: |
-            storage:
-              dbPath: /var/lib/mongo2
-            systemLog:
-              destination: file
-              path: /var/log/mongodb/mongod2.log
-              logAppend: true
-            net:
-              bindIp: localhost
-              port: 27018
-            replication:
-              replSetName: rs0
-            security:
-              authorization: enabled
-              keyFile: /var/lib/mongo2/keyfile
-            processManagement:
-              fork: true
-
-        - dest: /etc/mongod3.conf
-          content: |
-            storage:
-              dbPath: /var/lib/mongo3
-            systemLog:
-              destination: file
-              path: /var/log/mongodb/mongod3.log
-              logAppend: true
-            net:
-              bindIp: localhost
-              port: 27019
-            replication:
-              replSetName: rs0
-            security:
-              authorization: enabled
-              keyFile: /var/lib/mongo3/keyfile
-            processManagement:
-              fork: true
-
-    - name: Start MongoDB instance 1
-      command: sudo mongod --config /etc/mongod1.conf
-      async: 30
-      poll: 0
-
-    - name: Start MongoDB instance 2
-      command: sudo mongod --config /etc/mongod2.conf
-      async: 30
-      poll: 0
-
-    - name: Start MongoDB instance 3
-      command: sudo mongod --config /etc/mongod3.conf
-      async: 30
-      poll: 0
-
-    - name: Wait for MongoDB instances to start
-      wait_for:
-        port: "{{ item }}"
-        host: "localhost"
-        timeout: 60
-      loop:
-        - 27017
-        - 27018
-        - 27019
-
-    - name: Initialize the replica set
-      command: >
-        mongosh --eval 'rs.initiate({_id: "rs0", members: [{ _id: 0, host: "localhost:27017" }, { _id: 1, host: "localhost:27018" }, { _id: 2, host: "localhost:27019" }]})'
-      args:
-        chdir: /var/lib/mongo1
+    - name: Execute the MongoDB setup script
+      command: /tmp/setup_mongodb.sh
